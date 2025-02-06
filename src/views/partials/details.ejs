@@ -1,0 +1,99 @@
+<div class="relative w-full h-full p-6 text-white flex flex-col gap-4">
+  <!--links and buttons-->
+  <div class="w-full flex items-center gap-16 px-4">
+    <div class="text-xs text-gray-400 border-b border-stone-700 flex-grow px-2 py-1">
+      <% folderTree.forEach((folder) => { %>
+      <% if (folder.id !== selectedFolder.id) { %>
+      <a href="/dashboard/<%= folder.id %>" class="text-gray-200 hover:text-white">
+        <%= folder.name %>
+      </a>
+      <% } else { %>
+      <p class="inline"><%= folder.name %></p>
+      <% } %>
+      <span class="ml-[0.09rem]">/</span>
+      <% }) %>
+    </div>
+    <div class="flex gap-10 items-center justify-end">
+      <div class="relative group">
+        <button onclick="showCreateFolderForm()" class="text-2xl">
+          <i class="fa-solid fa-folder-plus text-lime-400"></i>
+        </button>
+        <!-- Custom Tooltip -->
+        <div class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 bg-white/15 text-gray-300 text-[0.6rem] rounded py-1 px-2 top-8 right-3 shadow-lg w-44 text-center">
+          Create new folder in <%= selectedFolder.name %>
+        </div>
+      </div>
+
+      <% if (home.id !== selectedFolder.id) { %>
+      <div class="relative group">
+        <button onclick="showUploadFileForm()" class="text-2xl">
+          <i class="fas fa-upload text-white"></i>
+        </button>
+        <!-- Custom Tooltip -->
+        <div class="absolute z-10 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 bg-white/15 text-gray-300 text-[0.6rem] rounded py-1 px-2 top-8 right-3 shadow-lg w-44 text-center">
+          Upload new file in <%= selectedFolder.name %>
+        </div>
+      </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!--main-->
+  <div class="w-full p-6 flex-grow flex items-center justify-center">
+    <% if (selectedFolder.children.length === 0 && selectedFolder.files.length === 0) { %>
+    <!--if content is emtpy-->
+    <div class="flex flex-col items-center justify-center text-center">
+      <!-- Folder Icon with Animation -->
+      <div class="bg-gray-800 p-5 rounded-full mb-4 shadow-lg">
+        <i class="fa-solid fa-folder-open text-6xl text-lime-400"></i>
+      </div>
+
+      <p class="text-lg font-normal font-poppins text-gray-300 mb-3">Your folder is empty!</p>
+
+      <% if (home.id === selectedFolder.id) { %>
+      <p class="text-sm text-gray-500 mb-5 leading-relaxed">
+        Start organizing your files by creating a new folder.<br>
+        Click the <span class="text-lime-400/50 font-semibold">"Create New Folder"</span> button below.
+      </p>
+      <% } else { %>
+      <p class="text-sm text-gray-500 mb-5 leading-relaxed">
+        Start organizing your files by adding folders and files.<br>
+        Click the buttons below.
+      </p>
+      <% } %>
+
+      <!-- Buttons -->
+      <div class="w-auto flex gap-6 items-center justify-center">
+        <button class="px-4 py-2 bg-lime-400/20 text-white font-semibold text-sm rounded-lg shadow-md hover:bg-lime-500/30 transition-all duration-300 flex items-center gap-2" onclick="showCreateFolderForm()">
+          <i class="fa-solid fa-folder-plus"></i> Create Folder
+        </button>
+        <% if (home.id !== selectedFolder.id) { %>
+        <button class="px-5 py-2 bg-white/20 text-white font-semibold text-sm rounded-lg shadow-md hover:bg-white/30 transition-all duration-300 flex items-center gap-2" onclick="showUploadFileForm()">
+          <i class="fas fa-upload"></i> Upload File
+        </button>
+        <% } %>
+      </div>
+      <p class="text-xs font-thin w-auto text-left mt-4 leading-loose text-gray-500">
+        <i class="fa-solid fa-folder-plus text-lime-400/35 mr-4"></i> Create folders <br>
+        <i class="fas fa-upload text-white/35 mr-4"></i> Upload files <br>
+        <i class="fa-solid fa-pen text-lime-400/35 mr-4"></i> Rename folders <br>
+        <i class="fa-solid fa-trash text-red-500/35 mr-4"></i> Delete files and folders <br>
+        <i class="fa-solid fa-arrow-right-arrow-left text-blue-500/35 mr-4"></i>Move files and folders <br>
+        <i class="fa-solid fa-share text-lime-600/35 mr-4"></i>Share files<br>
+      </p>
+
+    </div>
+
+    <% } else { %>
+
+    <!--if contents available -->
+    <!--folders section -->
+    <div class="relative w-full h-full">
+      <%- include("folders.ejs", { selectedFolder }) %>
+      <% if (home.id !== selectedFolder.id) { %>
+      <%- include("files.ejs", { selectedFolder }) %>
+      <% } %>
+    </div>
+    <% } %>
+  </div>
+</div>

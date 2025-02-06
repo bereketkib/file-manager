@@ -1,0 +1,54 @@
+<% if (selectedFolder.children.length === 0) { %>
+<div class="flex flex-col w-full items-center justify-center text-center">
+  <p class="text-xs text-left w-full border-b border-stone-600 font-poppins text-gray-300 font-thin italic p-2 mb-3">Folders</p>
+  <p class="text-base font-normal font-poppins text-gray-300 mt-8 mb-3">There are no folders available!</p>
+  <p class="text-xs font-extralight text-gray-500 mb-5 leading-relaxed">
+    Click the "Create Folder" button below.
+  </p>
+  <!-- Buttons -->
+  <div class="w-auto flex gap-6 items-center justify-center">
+    <button class="px-4 py-2 bg-lime-400/20 text-white font-semibold text-xs rounded-lg shadow-md hover:bg-lime-500/30 transition-all duration-300 flex items-center gap-2" onclick="showCreateFolderForm()">
+      <i class="fa-solid fa-folder-plus"></i> Create Folder
+    </button>
+  </div>
+
+</div>
+<% } else { %>
+<div class="w-full mb-3">
+  <p class="text-xs w-full border-b border-stone-600 font-poppins text-gray-300 font-thin italic p-2 mb-3">Folders</p>
+  <div class="w-full pb-3 scrollable">
+    <ul class="min-w-max p-2 flex gap-5 items-center justify-start">
+      <% selectedFolder.children.forEach((folder) => { %>
+      <li class="relative group folder list-none">
+        <a href="/dashboard/<%= folder.id %>" class="flex flex-col items-center justify-end w-28 h-32 folder-link">
+          <i class="fa-solid fa-folder text-lime-400/70 text-6xl"></i>
+          <p class="font-thin text-xs p-1 w-full text-center text-gray-300 truncate">
+            <%= folder.name %>
+          </p>
+        </a>
+
+        <div class="absolute z-50 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-opacity duration-300 bg-white/15 text-gray-300 text-[0.6rem] rounded py-1 px-2 -bottom-6 left-2/4 shadow-lg min-w-24 text-center">
+          <%= folder.name %>
+        </div>
+
+        <!--Rename Move and Delete buttons-->
+        <div class="folder-buttons absolute top-0 left-1/2 -translate-x-1/2 hidden space-x-2 pr-2 text-xs pt-2 items-center pointer-events-none">
+          <!--Rename button-->
+          <button onclick="showRenameFolderForm(<%= folder.id %>, <%= selectedFolder.id %>, <%= JSON.stringify(folder.name) %>, 'child')" class="p-1 text-lime-500/50 hover:text-lime-500/90 pointer-events-auto">
+            <i class="fa-solid fa-pen"></i>
+          </button>
+          <!--Move button-->
+          <button onclick="showMoveModal('/folders/<%= folder.id %>/move/<%= selectedFolder.id %>')" class="p-1 text-blue-500/50 hover:text-blue-500/90 pointer-events-auto">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+          </button>
+          <!--Delete button-->
+          <button onclick="showDeleteFolderForm(<%= folder.id %>, <%= selectedFolder.id %>)" class="p-1 text-red-500/50 hover:text-red-500/90 pointer-events-auto">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
+</div>
+<% } %>

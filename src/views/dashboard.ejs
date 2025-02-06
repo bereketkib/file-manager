@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" class="p-0 m-0 bg-black overflow-y-hidden overflow-x-hidden">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | File Uploader</title>
+  <link rel="stylesheet" href="/css/output.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/parsleyjs"></script>
+  <style>
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      background: transparent !important;
+      outline: none !important;
+      -webkit-text-fill-color: #fff !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    input:-webkit-autofill {
+      border-bottom: 1px solid #6B7280 !important;
+    }
+
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      border-bottom: 1px solid #D1D5DB !important;
+    }
+
+    .parsley-errors-list {
+      margin-top: 5px;
+      list-style: none;
+      font-size: 0.9em;
+      color: #fd5e5e;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+
+    .parsley-errors-list.filled {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .fixed {
+        top: 10px;
+        right: 10px;
+        width: calc(100% - 20px);
+      }
+
+      .md\:w-1\/5 {
+        width: 100%;
+      }
+
+      .md\:w-4\/5 {
+        width: 100%;
+      }
+
+      .flex-col {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body class="flex flex-col overflow-y-hidden overflow-x-hidden bg-stone-800 font-montserrat text-black w-screen h-screen p-0 m-0 animate__animated animate__fadeIn animate__slow">
+  <div class="h-full w-full p-0 m-0">
+    <div class="w-full p-0 m-0 flex h-full flex-col">
+      <% if (success_msg && success_msg.length > 0) { %>
+      <div class="fixed top-28 right-28 flex items-center px-6 py-4 mb-4 text-sm text-green-400 bg-transparent border border-green-400 rounded-lg shadow-lg z-50" role="alert">
+        <i class="fas fa-check-circle mr-3"></i>
+        <div><%= success_msg %></div>
+      </div>
+      <% } %>
+
+      <% if (error_msg && error_msg.length > 0) { %>
+      <div class="fixed top-28 right-28 flex items-center px-6 py-4 mb-4 text-sm text-red-600 bg-transparent border border-red-600 rounded-lg shadow-lg z-50" role="alert">
+        <i class="fas fa-exclamation-circle mr-3"></i>
+        <div><%= error_msg %></div>
+      </div>
+      <% } %>
+
+      <div class="w-full m-0 p-0">
+        <%- include('partials/header.ejs', { email, name }) %>
+      </div>
+
+      <div class="w-full flex flex-col md:flex-row h-full flex-grow">
+        <div class="md:w-1/5 w-full h-full">
+          <%- include('partials/list.ejs', { home, selectedFolder, allFolders }) %>
+        </div>
+        <div class="md:w-4/5 w-full">
+          <%- include('partials/details.ejs', { home, selectedFolder, folderTree }) %>
+        </div>
+      </div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function() {
+          const folders = <%- JSON.stringify(selectedFolder.children) %>;
+          const rootFolders = <%- JSON.stringify(home.children) %>;
+
+          window.Parsley.addValidator('unique', {
+            validateString: function(value) {
+              return !folders.some(folder => folder.name.toLowerCase() === value.toLowerCase())
+            },
+            messages: {
+              en: "A folder with the same name already exists."
+            }
+          })
+
+          window.Parsley.addValidator('isUnique', {
+            validateString: function(value) {
+              return !rootFolders.some(folder => folder.name.toLowerCase() === value.toLowerCase())
+            },
+            messages: {
+              en: "A folder with the same name already exists."
+            }
+          })
+
+          $(document.querySelector("#create-folder-form")).parsley();
+          $(document.querySelector("#rename-folder-form")).parsley();
+          $(document.querySelector("#upload-file-form")).parsley();
+          $(document.querySelector("#moveForm")).parsley();
+        });
+      </script>
+
+      <script src="/js/header.js"></script>
+      <script src="/js/list.js"></script>
+      <script src="/js/details.js"></script>
+      <script src="/js/alert.js"></script>
+    </div>
+  </div>
+</body>
+
+</html>

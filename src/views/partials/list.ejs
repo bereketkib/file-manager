@@ -1,0 +1,204 @@
+<div class="w-full h-full text-white/85 flex flex-col bg-stone-900/65">
+  <!--Home-->
+  <div class="w-full bg-stone-800 pr-[8px]">
+    <div class=" w-full bg-stone-900/65">
+      <% let isHomeSelected = home.id === selectedFolder.id ? "bg-stone-800" : ""; %>
+      <a href="/dashboard/home" class="block w-full border-b border-stone-800 <%= isHomeSelected %> px-4 hover:bg-stone-700/25">
+        <p class="font-poppins font-bold text-md py-4">
+          <% if (home.id === selectedFolder.id) { %>
+          <i class="fa-solid fa-folder-open text-lime-400"></i>
+          <% } else { %>
+          <i class="fa-solid fa-folder text-lime-400"></i>
+          <% } %>
+          <span class="ml-2"> <%= home.name %> </span>
+        </p>
+      </a>
+    </div>
+  </div>
+
+  <!--rootFolders-->
+  <div class="flex-grow flex flex-col w-full h-full">
+    <% if (home.children.length === 0) { %>
+    <div class="w-full h-full flex flex-col justify-center items-center">
+      <p class="text-sm font-normal text-gray-200 text-center font-poppins mb-3">No folders available</p>
+      <div class="w-full text-xs font-thin text-gray-400">
+        <p class="text-center mb-2">click the &nbsp;&nbsp; <i class="fa-solid fa-folder-plus text-lime-400/60"></i>&nbsp;&nbsp; icon <br> to create new folder</p>
+      </div>
+    </div>
+    <% } else {%>
+    <div class="w-full h-full flex-grow flex flex-col justify-start items-start scrollable-y">
+      <ul class="w-full min-h-max">
+        <% home.children.forEach((folder) => { %>
+        <li class="folder w-full relative folder">
+          <% let isFolderSelected = folder.id === selectedFolder.id ? "bg-stone-800" : ""; %>
+          <a href="/dashboard/<%= folder.id %>" class="block w-full border-b border-stone-800 px-6 hover:bg-stone-700/25 <%= isFolderSelected %>">
+            <p class="font-poppins font-extralight text-sm py-3">
+              <% if (folder.id === selectedFolder.id) { %>
+              <i class="fa-solid fa-folder-open text-lime-400"></i>
+              <% } else { %>
+              <i class="fa-solid fa-folder text-lime-400"></i>
+              <% } %>
+              <span class="ml-2 "> <%= folder.name %> </span>
+            </p>
+          </a>
+          <!--Rename and Delete buttons-->
+          <div class="folder-buttons absolute top-0 right-0 hidden space-x-2 h-full pr-2 items-center pointer-events-none text-sm">
+            <!--Rename button-->
+            <button onclick="showRenameFolderForm(<%= folder.id %>, <%= selectedFolder.id %>, <%= JSON.stringify(folder.name) %>, 'root')" class="p-1 text-lime-500/50 hover:text-lime-500/90 pointer-events-auto">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <!--Move button-->
+            <button onclick="showMoveModal('/folders/<%= folder.id %>/move/<%= selectedFolder.id %>')" class="p-1 text-blue-500/50 hover:text-blue-500/90 pointer-events-auto">
+              <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            </button>
+            <!--Delete button-->
+            <button onclick="showDeleteFolderForm(<%= folder.id %>, <%= selectedFolder.id %>)" class="p-1 text-red-500/50 hover:text-red-500/90 pointer-events-auto">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+        </li>
+        <% }) %>
+      </ul>
+    </div>
+    <% } %>
+  </div>
+
+</div>
+
+<div id="create-folder-container" class="fixed inset-0 z-30 w-full h-full hidden items-center justify-center bg-transparent">
+  <form id="create-folder-form" action="/folders/<%= selectedFolder.id %>/create" method="POST" class="relative bg-stone-950/90 backdrop:blur-3xl text-white rounded-lg shadow-lg p-4 md:p-6 w-[90%] max-w-[36rem]">
+    <div class="w-full p-6 flex flex-col gap-10">
+      <button type="button" onclick="hideCreateFolderForm()" class="absolute top-3 right-3"><i class="fa fa-times text-gray-300 text-xl"></i></button>
+      <div class="w-full">
+        <p class="text-xs text-gray-400 mb-4">Create Folder in: &nbsp;&nbsp; <span class="text-lime-600"><%= selectedFolder.name %>/</span></p>
+        <input type="text" id="name" name="name" data-parsley-pattern="^(?! )[A-Za-z0-9-_ ]+(?<! )$" data-parsley-pattern-message="Folder name can only contain letters, numbers, spaces, dashes (-), and underscores (_), and cannot start or end with a space or have consecutive spaces." data-parsley-unique="true" data-parsley-unique-message="A folder with the same name already exists." data-parsley-length="[3, 20]" data-parsley-length-message="Name must be between 3 and 20 characters long." data-parsley-trigger="keyup" data-parsley-required="true" class="name bg-transparent outline-none w-full border-b border-gray-500  text-white text-sm focus:bg-transparent focus:border-gray-300 focus:outline-none" placeholder="Enter folder name">
+      </div>
+      <div class="w-full flex justify-end">
+        <button type="submit" class="bg-stone-600 hover:bg-stone-500 text-lime-400 px-4 py-2 rounded">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div id="rename-folder-container" class="fixed inset-0 z-30 w-full h-full hidden items-center justify-center bg-transparent">
+  <form id="rename-folder-form" method="POST" class="relative bg-stone-950/90 backdrop:blur-3xl text-white rounded-lg shadow-lg p-4 md:p-6 w-[90%] max-w-[36rem]">
+    <div class="w-full p-6 flex flex-col gap-10">
+      <button type="button" onclick="hideRenameFolderForm()" class="absolute top-3 right-3"><i class="fa fa-times text-gray-300 text-xl"></i></button>
+      <div class="w-full">
+        <p id="para" class="text-xs text-gray-400 mb-4"></p>
+        <input type="text" id="rename-input" name="name" data-parsley-pattern="^(?! )[A-Za-z0-9-_ ]+(?<! )$" data-parsley-pattern-message="Folder name can only contain letters, numbers, spaces, dashes (-), and underscores (_), and cannot start or end with a space or have consecutive spaces." data-parsley-length="[3, 20]" data-parsley-length-message="Name must be between 3 and 20 characters long." data-parsley-trigger="keyup" data-parsley-required="true" class="bg-transparent outline-none w-full border-b border-gray-500  text-white text-sm focus:bg-transparent focus:border-gray-300 focus:outline-none" placeholder="Enter folder name">
+      </div>
+      <div class="w-full flex justify-end">
+        <button type="submit" class="bg-stone-600 hover:bg-stone-500 text-lime-400 px-4 py-2 rounded">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div id="delete-folder-container" class="fixed inset-0 z-30 w-full h-full hidden items-center justify-center bg-transparent">
+  <form id="delete-folder-form" method="POST" class="relative bg-stone-950/90 backdrop:blur-3xl text-white rounded-lg shadow-lg p-4 md:p-6 w-[90%] max-w-[36rem]">
+    <div class="w-full p-6 flex flex-col gap-10">
+      <div class="w-full">
+        <h3 class="font-poppins text-xl text-center font-bold tracking-wide mb-4">Are you sure?</h3>
+        <p class="text-sm font-light text-gray-300">The folder with all its contents will be deleted. The action cannot be undone.</p>
+      </div>
+      <div class="w-full flex gap-16 justify-center items-center">
+        <button type="button" onclick="hideDeleteFolderForm()" class="bg-lime-700 hover:bg-lime-800 px-4 py-2">Cancel</button>
+        <button type="submit" class="bg-red-500 hover:bg-red-700 px-4 py-2">
+          Delete
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div id="upload-file-container" class="fixed inset-0 z-30 w-full h-full hidden items-center justify-center bg-transparent">
+  <form id="upload-file-form" action="/files/<%= selectedFolder.id %>/upload" method="POST" enctype="multipart/form-data" class="relative bg-stone-950/90 backdrop:blur-3xl text-white rounded-lg shadow-lg p-4 md:p-6 w-[90%] max-w-[36rem]">
+    <div class="w-full p-6 flex flex-col gap-6">
+      <button type="button" onclick="hideUploadFileForm()" class="absolute top-3 right-3">
+        <i class="fa fa-times text-gray-300 text-xl"></i>
+      </button>
+      <div class="w-full">
+        <p class="text-xs text-gray-400 mb-4">
+          Upload File in: &nbsp;&nbsp; <span class="text-lime-600"><%= selectedFolder.name %>/</span>
+        </p>
+        <label for="file-upload" class="cursor-pointer flex items-center justify-center w-full border-2 border-dashed border-gray-500 rounded-lg p-4 text-gray-300 hover:border-lime-400 hover:text-lime-400 transition">
+          <i class="fa fa-upload text-xl mr-2"></i>
+          <span id="file-name">Click to choose a file</span>
+        </label>
+        <input id="file-upload" type="file" name="file" accept="image/*,application/pdf" class="hidden" data-parsley-required="true" data-parsley-filemimetypes="image/jpeg, image/png, application/pdf" data-parsley-trigger="change">
+      </div>
+      <div class="w-full flex justify-end">
+        <button type="submit" class="bg-stone-600 hover:bg-stone-500 text-lime-400 px-4 py-2 rounded">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div id="delete-file-container" class="fixed inset-0 z-30 w-full h-full hidden items-center justify-center bg-transparent">
+  <form id="delete-file-form" method="POST" class="relative bg-stone-950/90 backdrop:blur-3xl text-white rounded-lg shadow-lg p-4 md:p-6 w-[90%] max-w-[36rem]">
+    <div class="w-full p-6 flex flex-col gap-10">
+      <div class="w-full">
+        <h3 class="font-poppins text-xl text-center font-bold tracking-wide mb-4">Are you sure?</h3>
+        <p class="text-sm font-light text-gray-300">The file will permanently be deleted. The action cannot be undone.</p>
+      </div>
+      <div class="w-full flex gap-16 justify-center items-center">
+        <button type="button" onclick="hideDeleteFileForm()" class="bg-lime-700 hover:bg-lime-800 px-4 py-2">Cancel</button>
+        <button type="submit" class="bg-red-500 hover:bg-red-700 px-4 py-2">
+          Delete
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div id="share-file-container" class="fixed inset-0 z-30 w-full h-full hidden items-center justify-center bg-transparent">
+  <div class="relative bg-stone-950/90 backdrop:blur-3xl text-white rounded-lg shadow-lg p-4 md:p-6 w-[90%] max-w-[36rem]">
+    <button type="button" onclick="hideFileShare()" class="absolute top-3 right-3">
+      <i class="fa fa-times text-gray-300 text-xl"></i>
+    </button>
+
+    <p class="text-xs text-gray-400 mb-4">Copy the below link to share:</p>
+
+    <!-- Share Link Container -->
+    <div class="relative flex items-center space-x-2 bg-stone-800 text-gray-300 border border-stone-600 rounded px-3 py-2">
+      <input type="text" id="shareableLink" class="shareable-link w-full bg-transparent text-xs focus:outline-none" value="https://example.com/shared-file" readonly>
+      <button onclick="copyShareLink()" class="text-lime-400 hover:text-lime-300">
+        <i class="fa fa-copy text-lg"></i>
+      </button>
+      <p id="copy-para" class="absolute -top-6 right-0 opacity-0 invisible transition-opacity duration-300 text-xs text-gray-100 my-2">Copied!</p>
+    </div>
+
+  </div>
+</div>
+
+<div id="moveModal" class="fixed inset-0 z-30 w-full h-full hidden items-center justify-center bg-transparent">
+  <form id="moveForm" method="POST" class="relative bg-stone-950/90 backdrop:blur-3xl text-white rounded-lg shadow-lg p-4 md:p-6 w-[90%] max-w-[36rem]" onsubmit="return validateMoveForm()">
+    <button type="button" onclick="hideMoveModal()" class="absolute top-3 right-3">
+      <i class="fa fa-times text-gray-300 text-xl"></i>
+    </button>
+    <p class="text-xs text-gray-400 mb-4">Move item to:</p>
+
+    <!-- Label & Select -->
+    <label for="targetFolder" class="block text-sm font-semibold text-gray-300 mb-2">Select Folder:</label>
+    <select id="targetFolder" name="targetFolderId" class="w-full text-xs bg-stone-800 text-gray-300 border border-stone-600 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400" data-parsley-required="true" data-parsley-required-message="You need to choose a target folder.">
+      <option value="" disabled selected hidden>Select a folder</option>
+      <% allFolders.forEach(folder => { %>
+      <option value="<%= folder.id %>"><%= folder.name %></option>
+      <% }) %>
+    </select>
+
+    <!-- Submit Button -->
+    <div class="w-full flex justify-end mt-6">
+      <button type="submit" class="bg-stone-600 hover:bg-stone-500 text-lime-400 font-poppins text-sm font-medium px-4 py-2 rounded">
+        <i class="fa-solid fa-paper-plane mr-2"></i>
+      </button>
+    </div>
+  </form>
+</div>

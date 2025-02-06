@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .clip-diagonal {
+    clip-path: polygon(100% 0, 0% 100%, 100% 100%);
+  }
+}
+
+.scrollable {
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
+
+.scrollable-y {
+  overflow-y: scroll;
+}
+
+/* Custom scrollbar for WebKit browsers */
+.scrollable-y::-webkit-scrollbar {
+  width: 8px;
+}
+.scrollable::-webkit-scrollbar {
+  height: 8px;
+}
+
+.scrollable-y::-webkit-scrollbar-track,
+.scrollable::-webkit-scrollbar-track {
+  background-color: #292524;
+}
+
+.scrollable-y::-webkit-scrollbar-thumb,
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: #57534e;
+  border-radius: 4px;
+}
