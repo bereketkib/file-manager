@@ -83,7 +83,7 @@ An elegant and powerful **File Manager** built with **Express.js, Prisma ORM, Su
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/yourusername/express-file-manager.git
+   git clone https://github.com/bereketkib/file-manager.git
    cd express-file-manager
    ```
 2. Install dependencies:
